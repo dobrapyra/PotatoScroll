@@ -1,0 +1,36 @@
+{
+  "name": "potatoscroll",
+  "version": "1.0.0",
+  "description": "Custom scrollbar but still native scroll engine",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode=development",
+    "watch": "webpack --mode=development --watch",
+    "production": "webpack --mode=production -p",
+    "serve": "webpack-dev-server --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dobrapyra/PotatoScroll.git"
+  },
+  "homepage": "https://github.com/dobrapyra/PotatoScroll",
+  "bugs": {
+    "url": "https://github.com/dobrapyra/PotatoScroll/issues"
+  },
+  "author": "dobrapyra",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "css-loader": "^2.1.1",
+    "mini-css-extract-plugin": "^0.5.0",
+    "node-sass": "^4.13.1",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.2.1"
+  }
+}
