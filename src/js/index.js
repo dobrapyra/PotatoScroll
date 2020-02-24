@@ -31,19 +31,22 @@ export default class PotatoScroll {
     const {
       el,
       cssClass = 'potatoScroll',
+      forceCustom = false,
+      forceSize = 20,
     } = options;
 
     if (!el) return false;
 
     this.rootEl = el;
-
     this.cssClass = cssClass;
+    this.forceCustom = forceCustom;
 
     this.scrollWait = false;
     this.resizeWait = false;
 
     this.bar = {
       v: {
+        forceSize: forceCustom ? forceSize : 0,
         nativeSize: 0,
         el: null,
         moveStart: null,
@@ -55,6 +58,7 @@ export default class PotatoScroll {
         scrollProp: 'scrollTop',
       },
       h: {
+        forceSize: forceCustom ? forceSize : 0,
         nativeSize: 0,
         el: null,
         moveStart: null,
@@ -89,8 +93,14 @@ export default class PotatoScroll {
 
     body.appendChild(testScrollEl);
 
-    this.bar.v.nativeSize = testScrollEl.offsetWidth - testScrollEl.scrollWidth;
-    this.bar.h.nativeSize = testScrollEl.offsetHeight - testScrollEl.scrollHeight;
+    const vNativeSize = testScrollEl.offsetWidth - testScrollEl.scrollWidth;
+    const hNativeSize = testScrollEl.offsetHeight - testScrollEl.scrollHeight;
+
+    this.bar.v.nativeSize = vNativeSize;
+    this.bar.h.nativeSize = hNativeSize;
+
+    if (vNativeSize > 0) this.bar.v.forceSize = 0;
+    if (hNativeSize > 0) this.bar.h.forceSize = 0;
 
     // detect position - RTL
 
@@ -135,12 +145,32 @@ export default class PotatoScroll {
   hideNativeBars() {
     const { scrollEl, bar } = this;
 
+    if (this.forceCustom && (bar.v.nativeSize === 0 || bar.h.nativeSize === 0)) {
+      const vForceSize = bar.v.forceSize;
+      scrollEl.style.marginLeft = `${-vForceSize}px`;
+      scrollEl.style.paddingLeft = `${vForceSize}px`;
+      scrollEl.style.marginRight = `${-vForceSize}px`;
+      scrollEl.style.paddingRight = `${vForceSize}px`;
+
+      const hForceSize = bar.v.forceSize;
+      scrollEl.style.marginBottom = `${-hForceSize}px`;
+      scrollEl.style.paddingBottom = `${hForceSize}px`;
+
+      return;
+    }
+
     scrollEl.style.marginRight = `${-bar.h.nativeSize}px`;
     scrollEl.style.marginBottom = `${-bar.v.nativeSize}px`;
   }
 
   addCustomBars() {
     const { cssClass, bar, rootEl } = this;
+
+    if (!(
+      bar.v.nativeSize !== 0 ||
+      bar.h.nativeSize !== 0 ||
+      this.forceCustom
+    )) return;
 
     const vTrackEl = document.createElement('div');
     vTrackEl.classList.add(`${cssClass}__track`);
@@ -217,8 +247,8 @@ export default class PotatoScroll {
     this.onVBarMouseDown = this.onVBarMouseDown.bind(this);
     this.onHBarMouseDown = this.onHBarMouseDown.bind(this);
 
-    this.bar.v.el.addEventListener('mousedown', this.onVBarMouseDown);
-    this.bar.h.el.addEventListener('mousedown', this.onHBarMouseDown);
+    if (this.bar.v.el) this.bar.v.el.addEventListener('mousedown', this.onVBarMouseDown);
+    if (this.bar.h.el) this.bar.h.el.addEventListener('mousedown', this.onHBarMouseDown);
   }
 
   bindDocEvents() {
@@ -258,16 +288,16 @@ export default class PotatoScroll {
   }
 
   moveBegin(e) {
-    const { activeBarObj } = this;
+    const { activeBarObj, scrollEl } = this;
     if (activeBarObj === null) return;
 
-    this.scrollEl.style.userSelect = 'none';
-    this.scrollEl.style.pointerEvents = 'none';
+    scrollEl.style.userSelect = 'none';
+    scrollEl.style.pointerEvents = 'none';
 
     this.bindDocEvents();
 
     activeBarObj.moveStart = e[activeBarObj.moveProp];
-    activeBarObj.scrollBefore = this.scrollEl[activeBarObj.scrollProp];
+    activeBarObj.scrollBefore = scrollEl[activeBarObj.scrollProp];
   }
 
   moveUpdate(e) {
@@ -280,7 +310,7 @@ export default class PotatoScroll {
   }
 
   moveEnd() {
-    const { activeBarObj } = this;
+    const { activeBarObj, scrollEl } = this;
     if (activeBarObj === null) return;
 
     this.unbindDocEvents();
@@ -291,50 +321,60 @@ export default class PotatoScroll {
 
     this.activeBarObj = null;
 
-    this.scrollEl.style.userSelect = '';
-    this.scrollEl.style.pointerEvents = '';
+    scrollEl.style.userSelect = '';
+    scrollEl.style.pointerEvents = '';
   }
 
   setBarsSize() {
-    const { scrollEl } = this;
+    const { scrollEl, maskEl, bar } = this;
 
-    const vBarObj = this.bar.v;
-    const hBarObj = this.bar.h;
+    const vBarObj = bar.v;
+    const hBarObj = bar.h;
 
-    const vTrackSize = scrollEl.offsetHeight - vBarObj.nativeSize;
-    const vFract = vTrackSize / scrollEl.scrollHeight;
+    const vScrollSize = scrollEl.scrollHeight - vBarObj.forceSize;
+    const vTrackSize = maskEl.offsetHeight;
+    const vFract = vTrackSize / vScrollSize;
     vBarObj.trackSize = vTrackSize;
     vBarObj.sizeFract = vFract;
-    vBarObj.el.style.height = `${vFract * vBarObj.trackEl.offsetHeight}px`;
-    vBarObj.scrollRange = scrollEl.scrollHeight - vTrackSize;
-    vBarObj.moveRange = vBarObj.trackEl.offsetHeight - vBarObj.el.offsetHeight;
-    vBarObj.trackEl.style.display = (vBarObj.sizeFract === 1) ? 'none' : '';
+    vBarObj.scrollRange = vScrollSize - vTrackSize;
+    if (vBarObj.el) {
+      vBarObj.trackEl.style.display = (vBarObj.sizeFract === 1) ? 'none' : '';
+      vBarObj.el.style.height = `${vFract * vBarObj.trackEl.offsetHeight}px`;
+      vBarObj.moveRange = vBarObj.trackEl.offsetHeight - vBarObj.el.offsetHeight;
+    }
 
-    const hTrackSize = scrollEl.offsetWidth - vBarObj.nativeSize;
-    const hFract = hTrackSize / scrollEl.scrollWidth;
+    const hScrollSize = scrollEl.scrollWidth - 2 * hBarObj.forceSize;
+    const hTrackSize = maskEl.offsetWidth;
+    const hFract = hTrackSize / hScrollSize;
     hBarObj.trackSize = hTrackSize;
     hBarObj.sizeFract = hFract;
-    hBarObj.el.style.width = `${hFract * hBarObj.trackEl.offsetWidth}px`;
-    hBarObj.scrollRange = scrollEl.scrollWidth - hTrackSize;
-    hBarObj.moveRange = hBarObj.trackEl.offsetWidth - hBarObj.el.offsetWidth;
-    hBarObj.trackEl.style.display = (hBarObj.sizeFract === 1) ? 'none' : '';
+    hBarObj.scrollRange = hScrollSize - hTrackSize;
+    if (hBarObj.el) {
+      hBarObj.trackEl.style.display = (hBarObj.sizeFract === 1) ? 'none' : '';
+      hBarObj.el.style.width = `${hFract * hBarObj.trackEl.offsetWidth}px`;
+      hBarObj.moveRange = hBarObj.trackEl.offsetWidth - hBarObj.el.offsetWidth;
+    }
   }
 
   setBarsPos() {
-    const { scrollEl } = this;
+    const { scrollEl, bar } = this;
 
-    const vBarObj = this.bar.v;
-    const hBarObj = this.bar.h;
+    const vBarObj = bar.v;
+    const hBarObj = bar.h;
 
-    const vPos = (scrollEl.scrollTop / vBarObj.scrollRange) * (
-      vBarObj.trackSize * (1 - vBarObj.sizeFract)
-    );
-    vBarObj.el.style.transform = `translateY(${vPos}px)`;
+    if (vBarObj.el) {
+      const vPos = (scrollEl.scrollTop / vBarObj.scrollRange) * (
+        vBarObj.trackSize * (1 - vBarObj.sizeFract)
+      );
+      vBarObj.el.style.transform = `translateY(${vPos}px)`;
+    }
 
-    const hPos = (scrollEl.scrollLeft / hBarObj.scrollRange) * (
-      hBarObj.trackSize * (1 - hBarObj.sizeFract)
-    );
-    hBarObj.el.style.transform = `translateX(${hPos}px)`;
+    if (hBarObj.el) {
+      const hPos = (scrollEl.scrollLeft / hBarObj.scrollRange) * (
+        hBarObj.trackSize * (1 - hBarObj.sizeFract)
+      );
+      hBarObj.el.style.transform = `translateX(${hPos}px)`;
+    }
   }
 
   barMoveToScroll(activeBarObj) {
