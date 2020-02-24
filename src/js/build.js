@@ -1,5 +1,5 @@
 import '../scss/index.scss';
 
-import PotatoScroll from './index.js';
+import PotatoScroll from './scroll.js';
 
 export default PotatoScroll;
