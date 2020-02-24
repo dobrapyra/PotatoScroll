@@ -50,7 +50,7 @@ module.exports = (env, args) => {
     },
     plugins: [
       new MiniCssExtractPlugin({
-        filename: 'potato-scroll.css'
+        filename: devMode ? 'potato-scroll.css' : 'potato-scroll.min.css',
       })
     ],
     optimization: {
