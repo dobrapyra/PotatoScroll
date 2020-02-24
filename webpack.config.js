@@ -15,7 +15,7 @@ module.exports = (env, args) => {
       port: 4000,
       open: true
     },
-    entry: './src/js/index.js',
+    entry: './src/js/build.js',
     output: {
       path: path.resolve(__dirname, './dist'),
       filename: devMode ? 'potato-scroll.js' : 'potato-scroll.min.js',
