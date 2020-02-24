@@ -174,6 +174,8 @@ PotatoScroll.create({
 // single instance create
 new PotatoScroll({
   el: undefined, // required, Element
-  cssClass: 'potatoScroll',
+  cssClass: 'potatoScroll', // custom css class name for scrollbar styling
+  forceCustom: false, // force to use custom scroll on touch devices and macOS
+  forceSize: 20, // offset for forceCustom to hide native scroll
 });
 ```
