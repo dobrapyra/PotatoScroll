@@ -28,11 +28,18 @@ export default class PotatoScroll {
   }
 
   setVars(options = {}) {
+    const NOOP = () => {};
+
     const {
       el,
       cssClass = 'potatoScroll',
       forceCustom = false,
       forceSize = 20,
+      onScroll = NOOP,
+      onTop = NOOP,
+      onBottom = NOOP,
+      onLeft = NOOP,
+      onRight = NOOP,
     } = options;
 
     if (!el) return false;
@@ -40,6 +47,19 @@ export default class PotatoScroll {
     this.rootEl = el;
     this.cssClass = cssClass;
     this.forceCustom = forceCustom;
+
+    this.event = {
+      onScroll,
+      onTop,
+      onBottom,
+      onLeft,
+      onRight,
+    };
+
+    this.progress = {
+      v: 0,
+      h: 0,
+    };
 
     this.scrollWait = false;
     this.resizeWait = false;
@@ -357,23 +377,40 @@ export default class PotatoScroll {
   }
 
   setBarsPos() {
-    const { scrollEl, bar } = this;
+    const { scrollEl, bar, progress, event, rootEl } = this;
 
     const vBarObj = bar.v;
     const hBarObj = bar.h;
 
+    const fract = {
+      v: 0,
+      h: 0,
+    };
+
     if (vBarObj.el) {
-      const vPos = (scrollEl.scrollTop / vBarObj.scrollRange) * (
-        vBarObj.trackSize * (1 - vBarObj.sizeFract)
-      );
+      fract.v = vBarObj.scrollRange ? (scrollEl.scrollTop / vBarObj.scrollRange) : 0;
+      const vPos = fract.v * (vBarObj.trackSize * (1 - vBarObj.sizeFract));
       vBarObj.el.style.transform = `translateY(${vPos}px)`;
     }
 
     if (hBarObj.el) {
-      const hPos = (scrollEl.scrollLeft / hBarObj.scrollRange) * (
-        hBarObj.trackSize * (1 - hBarObj.sizeFract)
-      );
+      fract.h = hBarObj.scrollRange ? (scrollEl.scrollLeft / hBarObj.scrollRange) : 0;
+      const hPos = fract.h * (hBarObj.trackSize * (1 - hBarObj.sizeFract));
       hBarObj.el.style.transform = `translateX(${hPos}px)`;
+    }
+
+    event.onScroll(fract, rootEl);
+
+    if (fract.v !== progress.v) {
+      if (fract.v <= 0) event.onTop(rootEl);
+      if (fract.v >= 1) event.onBottom(rootEl);
+      progress.v = fract.v;
+    }
+
+    if (fract.h !== progress.h) {
+      if (fract.h <= 0) event.onLeft(rootEl);
+      if (fract.h >= 1) event.onRight(rootEl);
+      progress.h = fract.h;
     }
   }
 
