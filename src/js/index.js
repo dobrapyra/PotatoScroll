@@ -8,9 +8,9 @@ export default class PotatoScroll {
     return Array.prototype.map.call(
       document.querySelectorAll(selector),
       el => {
-        return new PotatoScroll(Object.assign(options, {
-          el,
-        }));
+        const instanceOption = Object(options);
+        instanceOption.el = el;
+        return new PotatoScroll(instanceOption);
       }
     );
   }
@@ -25,6 +25,8 @@ export default class PotatoScroll {
     this.bindEvents();
     this.bindBarsEvents();
     this.refresh();
+
+    setTimeout(this.refreshParents.bind(this));
   }
 
   setVars(options = {}) {
@@ -228,9 +230,11 @@ export default class PotatoScroll {
     this.onScrollThrottle = this.onScrollThrottle.bind(this);
     this.onResize = this.onResize.bind(this);
     this.onResizeThrottle = this.onResizeThrottle.bind(this);
+    this.onNestedCreate = this.onNestedCreate.bind(this);
 
     this.scrollEl.addEventListener('scroll', this.onScrollThrottle);
     window.addEventListener('resize', this.onResizeThrottle);
+    this.rootEl.addEventListener('PotatoScroll.nestedCreate', this.onNestedCreate);
   }
 
   onScrollThrottle() {
@@ -257,6 +261,10 @@ export default class PotatoScroll {
     this.refresh();
 
     this.resizeWait = false;
+  }
+
+  onNestedCreate() {
+    this.refresh();
   }
 
   bindBarsEvents() {
@@ -420,6 +428,13 @@ export default class PotatoScroll {
         activeBarObj.scrollRange * activeBarObj.moveDiff / activeBarObj.moveRange
       )
     );
+  }
+
+  refreshParents() {
+    if (!window.CustomEvent) return;
+    this.rootEl.parentElement.dispatchEvent(new CustomEvent('PotatoScroll.nestedCreate', {
+      bubbles: true,
+    }));
   }
 
   /**
