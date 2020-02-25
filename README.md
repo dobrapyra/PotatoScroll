@@ -177,5 +177,10 @@ new PotatoScroll({
   cssClass: 'potatoScroll', // custom css class name for scrollbar styling
   forceCustom: false, // force to use custom scroll on touch devices and macOS
   forceSize: 20, // offset for forceCustom to hide native scroll
+  onScroll: function(progress, element) {}, // on scroll event (progress is in range 0 - 1)
+  onTop: function(element) {}, // on top event
+  onBottom: function(element) {}, // on bottom event
+  onLeft: function(element) {}, // on left event
+  onRight: function(element) {}, // on right event
 });
 ```
