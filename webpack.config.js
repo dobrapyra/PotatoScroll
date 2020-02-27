@@ -68,7 +68,14 @@ module.exports = (env, args) => {
             compress: {},
             mangle: true, // Note `mangle.properties` is `false` by default.
             module: false,
-            output: null,
+            // output: null,
+            output: {
+              preamble: `/**
+ * PotatoScroll
+ * author: dobrapyra (Michał Zieliński)
+ * version ${JSON.stringify(require('./package.json').version)}
+ */`
+            },
             toplevel: false,
             nameCache: null,
             ie8: false,
