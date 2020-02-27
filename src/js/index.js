@@ -37,6 +37,7 @@ export default class PotatoScroll {
       cssClass = 'potatoScroll',
       forceCustom = false,
       forceSize = 20,
+      onNativeScroll = NOOP,
       onScroll = NOOP,
       onTop = NOOP,
       onBottom = NOOP,
@@ -51,6 +52,7 @@ export default class PotatoScroll {
     this.forceCustom = forceCustom;
 
     this.event = {
+      onNativeScroll,
       onScroll,
       onTop,
       onBottom,
@@ -237,7 +239,9 @@ export default class PotatoScroll {
     this.rootEl.addEventListener('PotatoScroll.nestedCreate', this.onNestedCreate);
   }
 
-  onScrollThrottle() {
+  onScrollThrottle(event) {
+    this.event.onNativeScroll(event, this.rootEl);
+
     if (this.scrollWait) return;
     this.scrollWait = true;
 
