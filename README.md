@@ -5,6 +5,38 @@ Demo: [https://dobrapyra.github.io/PotatoScroll/](https://dobrapyra.github.io/Po
 
 ## Usage
 
+### JS
+
+#### Standalone library
+
+```html
+<script src="./dist/potato-scroll.min.js"></script>
+```
+
+#### ES6 module
+
+##### Install
+```bash
+npm install --save potatoscroll
+```
+
+##### Import
+```js
+import PotatoScroll from 'potatoscroll';
+```
+
+#### Initialize
+
+##### Global create
+```js
+PotatoScroll.create({ selector: '.scroll' });
+```
+##### Single instances
+```js
+new PotatoScroll({ el: document.querySelector('.scroll--main') });
+new PotatoScroll({ el: document.querySelector('.scroll--nested') });
+```
+
 ### HTML
 Example HTML
 
@@ -144,20 +176,11 @@ Example SCSS
 }
 ```
 
-### JS
-
-```js
-// global create
-PotatoScroll.create({ selector: '.scroll' });
-
-// or/and
-
-// single instance create
-new PotatoScroll({ el: document.querySelector('.scroll--main') });
-new PotatoScroll({ el: document.querySelector('.scroll--nested') });
-
+### Default styles file
+```html
+<link rel="stylesheet" type="text/css" media="screen" href="./dist/potato-scroll.css" />
 ```
-  
+
 ## Options
 
 All available options with their default values:
@@ -166,7 +189,7 @@ All available options with their default values:
 // global create
 PotatoScroll.create({
   selector: undefined, // required, String - CSS selector string
-  // all single instance options exclude el
+  // ... // all single instance options exclude el
 });
 
 // or/and
@@ -175,12 +198,43 @@ PotatoScroll.create({
 new PotatoScroll({
   el: undefined, // required, Element
   cssClass: 'potatoScroll', // custom css class name for scrollbar styling
-  forceCustom: false, // force to use custom scroll on touch devices and macOS
-  forceSize: 20, // offset for forceCustom to hide native scroll
-  onScroll: function(progress, element) {}, // on scroll event (progress is in range 0 - 1)
+  forceCustom: false, // forces to use custom scrollbar on touch devices and macOS
+  forceSize: 20, // offset for forceCustom to hide native scrollbar
+  onNativeScroll: function(element) {}, // on scroll event
+  onScroll: function(progress, element) {}, // throttled on scroll event (progress is in range 0 - 1)
   onTop: function(element) {}, // on top event
   onBottom: function(element) {}, // on bottom event
   onLeft: function(element) {}, // on left event
   onRight: function(element) {}, // on right event
 });
 ```
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `selector` | String | `undefined` | Only for `create()` method |
+| `el` | Element | `undefined` | Only for single instance constructor (`new PotatoScroll()`) |
+| `cssClass` | String | `"potatoScroll"` | Custom css class, all classes are generate in BEM |
+| `forceCustom` | Boolean | `false` | Forces to use custom scrollbar on touch devices and macOS |
+| `forceSize` | Number | `20` | Offset value used by forceCustom to hide native scrollbar |
+
+## Methods
+
+| Method | Return | Description |
+| --- | --- | --- |
+| `new PotatoScroll(options)` | single PotatoScroll instance | The `el` property is required in the options object. |
+| `create(options)` | array of PotatoScroll instances | Creates multiple instances by css selector.<sup>1</sup><br />The `selector` property is required in the options object. |
+| `refresh()` | undefined | Recalculates content size and set scrollbars size |
+| `destroy()` | undefined | Destroys the instance and restore original html |
+> 1. A single instance for each element catched by css selector
+
+## Events
+
+| Event | Arguments | Triggered by |
+| --- | --- | --- |
+| `onNativeScroll(event, element)` | `event` {Event} native scroll event<br />`element` {Element} instance root element | Native scroll event. |
+| `onScroll(progress, element)` | `progress` {Number} scroll progress in range 0 - 1<br />`element` {Element} instance root element | Throttled scroll event. <sup>1<sup> |
+| `onTop(element)` | `element` {Element} instance root element | Scroll to top edge | 
+| `onBottom(element)` | `element` {Element} instance root element | Scroll to bottom edge | 
+| `onLeft(element)` | `element` {Element} instance root element | Scroll to left edge | 
+| `onRight(element)` | `element` {Element} instance root element | Scroll to right edge | 
+> 1. This event is throttled using requestAnimationFrame.
