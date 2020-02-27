@@ -442,10 +442,29 @@ export default class PotatoScroll {
   }
 
   /**
-    * manualy refresh bars
+    * Recalculates content size and set scrollbars size
     */
   refresh() {
     this.setBarsSize();
     this.setBarsPos();
+  }
+
+  /**
+    * Destroys the instance and restore original html
+    */
+  destroy() {
+    const { scrollEl, maskEl, rootEl, cssClass } = this;
+
+    rootEl.classList.remove(cssClass);
+    rootEl.style.overflow = '';
+    rootEl.style.position = '';
+    rootEl.style.display = '';
+
+    while (scrollEl.childNodes.length) {
+      rootEl.appendChild(scrollEl.childNodes[0]);
+    }
+
+    maskEl.removeChild(scrollEl);
+    rootEl.removeChild(maskEl);
   }
 }
