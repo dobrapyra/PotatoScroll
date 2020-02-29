@@ -53,18 +53,19 @@ export default class PotatoScroll {
       onRight,
     };
 
-    this.progress = {
-      v: 0,
-      h: 0,
-    };
-
     this.wait = {
       scroll: false,
       resize: false,
     };
+
     this.raf = {
       scroll: null,
       resize: null,
+    };
+
+    this.progress = {
+      v: 0,
+      h: 0,
     };
 
     this.bar = {
@@ -99,6 +100,8 @@ export default class PotatoScroll {
     };
 
     this.activeBarObj = null;
+
+    this.isRTL = false;
 
     return true;
   }
@@ -139,22 +142,22 @@ export default class PotatoScroll {
   }
 
   analyzeNative() {
-    const { bar } = this;
-    const body = document.documentElement;
+    const { rootEl, bar } = this;
+
+    const rootParent = rootEl.parentElement;
 
     const testScrollEl = document.createElement('div');
-    testScrollEl.style.overflow = 'scroll';
-    testScrollEl.style.width = '100px';
-    testScrollEl.style.height = '100px';
-    testScrollEl.style.position = 'absolute';
-    testScrollEl.style.top = 0;
-    testScrollEl.style.left = 0;
-    testScrollEl.style.visibility = 'hidden';
+    const testScrollStyle = testScrollEl.style;
+    testScrollStyle.overflow = 'scroll';
+    testScrollStyle.width = '100px';
+    testScrollStyle.height = '100px';
+    testScrollStyle.position = 'absolute';
+    testScrollStyle.top = 0;
+    testScrollStyle.left = 0;
+    testScrollStyle.visibility = 'hidden';
+    testScrollStyle.opacity = 0;
 
-    const testContentEl = document.createElement('div');
-    testScrollEl.appendChild(testContentEl);
-
-    body.appendChild(testScrollEl);
+    rootParent.appendChild(testScrollEl);
 
     const vNativeSize = testScrollEl.offsetWidth - testScrollEl.scrollWidth;
     const hNativeSize = testScrollEl.offsetHeight - testScrollEl.scrollHeight;
@@ -165,9 +168,17 @@ export default class PotatoScroll {
     if (vNativeSize > 0) bar.v.forceSize = 0;
     if (hNativeSize > 0) bar.h.forceSize = 0;
 
-    // detect position - RTL
+    // detect RTL
+    if (vNativeSize > 0) {
+      const testContentEl = document.createElement('div');
+      testScrollEl.appendChild(testContentEl);
 
-    body.removeChild(testScrollEl);
+      this.isRTL = (vNativeSize > 0) && (testContentEl.offsetLeft > testScrollEl.offsetLeft);
+
+      testScrollEl.removeChild(testContentEl);
+    }
+
+    rootParent.removeChild(testScrollEl);
   }
 
   prepareDOM() {
@@ -225,7 +236,11 @@ export default class PotatoScroll {
       return;
     }
 
-    scrollEl.style.marginRight = `${-bar.h.nativeSize}px`;
+    if (this.isRTL) {
+      scrollEl.style.marginLeft = `${-bar.h.nativeSize}px`;
+    } else {
+      scrollEl.style.marginRight = `${-bar.h.nativeSize}px`;
+    }
     scrollEl.style.marginBottom = `${-bar.v.nativeSize}px`;
   }
 

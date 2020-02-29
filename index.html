@@ -402,6 +402,61 @@ PotatoScroll.create({
   </div>
 
   <div class="example">
+    <div class="example__head">Scroll inside RTL containser [dir="rtl"]</div>
+    <div class="example__body">
+      <div class="example__demo" dir="rtl">
+
+        <div class="scroll scroll--rtl">
+          <div class="innerBox">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>&nbsp;</p>
+            <h4>nested vertical</h4>
+            <div class="scroll scroll--nested scroll--rtl">
+              <div class="innerBox">
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+              </div>
+            </div>
+            <p>&nbsp;</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>&nbsp;</p>
+            <h4>nested horizontal</h4>
+            <div class="scroll scroll--nestedH scroll--rtl">
+              <div class="innerBox innerBox--h">
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+              </div>
+            </div>
+            <p>&nbsp;</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="example__code">
+        <pre>
+<code class="language-js"><!--
+-->
+PotatoScroll.create({
+  selector: '.scroll--rtl',
+});<!--
+--></code>
+        </pre>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="example">
     <div class="example__head">Example custom CSS &amp; SCSS</div>
     <div class="example__body">
       <div class="example__code">
@@ -422,6 +477,9 @@ PotatoScroll.create({
     transition: width 0.2s, background-color 0.2s; }
     .potatoScroll__track--v:hover {
       width: 12px; }
+    [dir=rtl] .potatoScroll__track--v {
+      right: auto;
+      left: 0; }
   .potatoScroll__track--h {
     width: 100%;
     height: 4px;
@@ -476,6 +534,11 @@ PotatoScroll.create({
 
       &:hover{
         width: 12px;
+      }
+
+      [dir=rtl] & {
+        right: auto;
+        left: 0;
       }
     }
 
@@ -560,6 +623,11 @@ PotatoScroll.create({
     PotatoScroll.create({
       selector: '.scroll--forceCustom',
       forceCustom: true,
+    });
+
+    // rtl
+    PotatoScroll.create({
+      selector: '.scroll--rtl',
     });
   </script>
   <script src="./demo/prism.js"></script>
