@@ -18,15 +18,8 @@ export default class PotatoScroll {
   constructor(options) {
     if (!this.setVars(options)) return;
 
-    this.analyzeNative();
-    this.prepareDOM();
-    this.hideNativeBars();
-    this.addCustomBars();
-    this.bindEvents();
-    this.bindBarsEvents();
-    this.refresh();
-
-    setTimeout(this.refreshParents.bind(this));
+    this.bindThis();
+    this.initialize();
   }
 
   setVars(options = {}) {
@@ -100,7 +93,43 @@ export default class PotatoScroll {
     return true;
   }
 
+  bindThis() {
+    this.onScrollThrottle = this.onScrollThrottle.bind(this);
+    this.onScroll = this.onScroll.bind(this);
+
+    this.onResizeThrottle = this.onResizeThrottle.bind(this);
+    this.onResize = this.onResize.bind(this);
+
+    this.onNestedCreate = this.onNestedCreate.bind(this);
+    this.refreshParents = this.refreshParents.bind(this);
+
+    this.onDocMouseMove = this.onDocMouseMove.bind(this);
+    this.onDocMouseUp = this.onDocMouseUp.bind(this);
+    this.onDocMouseLeave = this.onDocMouseLeave.bind(this);
+
+    this.onVBarMouseDown = this.onVBarMouseDown.bind(this);
+    this.onHBarMouseDown = this.onHBarMouseDown.bind(this);
+  }
+
+  /**
+   * Initialize & reinitialize instance
+   */
+  initialize() {
+    this.destroy();
+
+    this.analyzeNative();
+    this.prepareDOM();
+    this.hideNativeBars();
+    this.addCustomBars();
+    this.bindEvents();
+    this.bindBarsEvents();
+    this.refresh();
+
+    setTimeout(this.refreshParents);
+  }
+
   analyzeNative() {
+    const { bar } = this;
     const body = document.documentElement;
 
     const testScrollEl = document.createElement('div');
@@ -120,11 +149,11 @@ export default class PotatoScroll {
     const vNativeSize = testScrollEl.offsetWidth - testScrollEl.scrollWidth;
     const hNativeSize = testScrollEl.offsetHeight - testScrollEl.scrollHeight;
 
-    this.bar.v.nativeSize = vNativeSize;
-    this.bar.h.nativeSize = hNativeSize;
+    bar.v.nativeSize = vNativeSize;
+    bar.h.nativeSize = hNativeSize;
 
-    if (vNativeSize > 0) this.bar.v.forceSize = 0;
-    if (hNativeSize > 0) this.bar.h.forceSize = 0;
+    if (vNativeSize > 0) bar.v.forceSize = 0;
+    if (hNativeSize > 0) bar.h.forceSize = 0;
 
     // detect position - RTL
 
@@ -136,24 +165,27 @@ export default class PotatoScroll {
 
     // rootEl
     rootEl.classList.add(cssClass);
-    rootEl.style.overflow = 'visible';
-    rootEl.style.position = 'relative';
-    rootEl.style.display = 'flex';
+    const rootStyle = rootEl.style;
+    rootStyle.overflow = 'visible';
+    rootStyle.position = 'relative';
+    rootStyle.display = 'flex';
 
     // maskEl
     const maskEl = document.createElement('div');
     maskEl.classList.add(`${cssClass}__mask`);
-    maskEl.style.flexGrow = 1;
-    maskEl.style.overflow = 'hidden';
-    maskEl.style.position = 'relative';
-    maskEl.style.display = 'flex';
-    maskEl.style.zIndex = '0';
+    const maskStyle = maskEl.style;
+    maskStyle.flexGrow = 1;
+    maskStyle.overflow = 'hidden';
+    maskStyle.position = 'relative';
+    maskStyle.display = 'flex';
+    maskStyle.zIndex = '0';
 
     // scrollEl
     const scrollEl = document.createElement('div');
     scrollEl.classList.add(`${cssClass}__scroll`);
-    scrollEl.style.flexGrow = 1;
-    scrollEl.style.overflow = 'scroll';
+    const scrollStyle = scrollEl.style;
+    scrollStyle.flexGrow = 1;
+    scrollStyle.overflow = 'scroll';
 
     while (rootEl.childNodes.length) {
       scrollEl.appendChild(rootEl.childNodes[0]);
@@ -228,15 +260,19 @@ export default class PotatoScroll {
   }
 
   bindEvents() {
-    this.onScroll = this.onScroll.bind(this);
-    this.onScrollThrottle = this.onScrollThrottle.bind(this);
-    this.onResize = this.onResize.bind(this);
-    this.onResizeThrottle = this.onResizeThrottle.bind(this);
-    this.onNestedCreate = this.onNestedCreate.bind(this);
+    if (this.scrollEl) this.scrollEl.addEventListener('scroll', this.onScrollThrottle);
 
-    this.scrollEl.addEventListener('scroll', this.onScrollThrottle);
     window.addEventListener('resize', this.onResizeThrottle);
+
     this.rootEl.addEventListener('PotatoScroll.nestedCreate', this.onNestedCreate);
+  }
+
+  unbindEvents() {
+    if (this.scrollEl) this.scrollEl.removeEventListener('scroll', this.onScrollThrottle);
+
+    window.removeEventListener('resize', this.onResizeThrottle);
+
+    this.rootEl.removeEventListener('PotatoScroll.nestedCreate', this.onNestedCreate);
   }
 
   onScrollThrottle(event) {
@@ -272,15 +308,17 @@ export default class PotatoScroll {
   }
 
   bindBarsEvents() {
-    this.onDocMouseMove = this.onDocMouseMove.bind(this);
-    this.onDocMouseUp = this.onDocMouseUp.bind(this);
-    this.onDocMouseLeave = this.onDocMouseLeave.bind(this);
+    const { bar } = this;
 
-    this.onVBarMouseDown = this.onVBarMouseDown.bind(this);
-    this.onHBarMouseDown = this.onHBarMouseDown.bind(this);
+    if (bar.v.el) bar.v.el.addEventListener('mousedown', this.onVBarMouseDown);
+    if (bar.h.el) bar.h.el.addEventListener('mousedown', this.onHBarMouseDown);
+  }
 
-    if (this.bar.v.el) this.bar.v.el.addEventListener('mousedown', this.onVBarMouseDown);
-    if (this.bar.h.el) this.bar.h.el.addEventListener('mousedown', this.onHBarMouseDown);
+  unbindBarsEvents() {
+    const { bar } = this;
+
+    if (bar.v.el) bar.v.el.removeEventListener('mousedown', this.onVBarMouseDown);
+    if (bar.h.el) bar.h.el.removeEventListener('mousedown', this.onHBarMouseDown);
   }
 
   bindDocEvents() {
@@ -453,18 +491,45 @@ export default class PotatoScroll {
     * Destroys the instance and restore original html
     */
   destroy() {
-    const { scrollEl, maskEl, rootEl, cssClass } = this;
+    const { scrollEl, maskEl, rootEl, bar, cssClass } = this;
 
-    rootEl.classList.remove(cssClass);
-    rootEl.style.overflow = '';
-    rootEl.style.position = '';
-    rootEl.style.display = '';
+    this.unbindDocEvents();
+    this.unbindBarsEvents();
+    this.unbindEvents();
 
-    while (scrollEl.childNodes.length) {
-      rootEl.appendChild(scrollEl.childNodes[0]);
+    if (bar.v.trackEl) {
+      rootEl.removeChild(bar.v.trackEl);
+      bar.v.el = null;
+      bar.v.trackEl = null;
+    }
+    if (bar.h.trackEl) {
+      rootEl.removeChild(bar.h.trackEl);
+      bar.h.el = null;
+      bar.h.trackEl = null;
     }
 
-    maskEl.removeChild(scrollEl);
-    rootEl.removeChild(maskEl);
+    rootEl.classList.remove(cssClass);
+    const rootStyle = rootEl.style;
+    rootStyle.overflow = '';
+    rootStyle.position = '';
+    rootStyle.display = '';
+
+    if (scrollEl) {
+      while (scrollEl.childNodes.length) {
+        rootEl.appendChild(scrollEl.childNodes[0]);
+      }
+
+      if (maskEl) {
+        maskEl.removeChild(scrollEl);
+      }
+
+      this.scrollEl = null;
+    }
+
+    if (maskEl) {
+      rootEl.removeChild(maskEl);
+
+      this.maskEl = null;
+    }
   }
 }
