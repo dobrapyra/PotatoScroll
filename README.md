@@ -3,6 +3,8 @@ Custom scrollbar but still native scroll engine.
 
 Demo: [https://dobrapyra.github.io/PotatoScroll/](https://dobrapyra.github.io/PotatoScroll/)
 
+---
+
 ## Usage
 
 ### JS
@@ -25,6 +27,8 @@ npm install --save potatoscroll
 import PotatoScroll from 'potatoscroll';
 ```
 
+---
+
 #### Initialize
 
 ##### Global create
@@ -36,6 +40,8 @@ PotatoScroll.create({ selector: '.scroll' });
 new PotatoScroll({ el: document.querySelector('.scroll--main') });
 new PotatoScroll({ el: document.querySelector('.scroll--nested') });
 ```
+
+---
 
 ### HTML
 Example HTML
@@ -56,6 +62,7 @@ Example HTML
   </div>
 </div>
 ```
+---
 
 ### CSS
 Example CSS
@@ -181,6 +188,8 @@ Example SCSS
 <link rel="stylesheet" type="text/css" media="screen" href="./dist/potato-scroll.css" />
 ```
 
+---
+
 ## Options
 
 All available options with their default values:
@@ -217,24 +226,42 @@ new PotatoScroll({
 | `forceCustom` | Boolean | `false` | Forces to use custom scrollbar on touch devices and macOS |
 | `forceSize` | Number | `20` | Offset value used by forceCustom to hide native scrollbar |
 
-## Methods
+---
 
+## Constructors
 | Method | Return | Description |
 | --- | --- | --- |
 | `new PotatoScroll(options)` | single PotatoScroll instance | The `el` property is required in the options object. |
 | `create(options)` | array of PotatoScroll instances | Creates multiple instances by css selector.<sup>1</sup><br />The `selector` property is required in the options object. |
+
+1. A single instance for each element catched by css selector
+
+---
+
+## Methods
+
+| Method | Return | Description |
+| --- | --- | --- |
 | `refresh()` | undefined | Recalculates content size and set scrollbars size |
 | `destroy()` | undefined | Destroys the instance and restore original html |
-> 1. A single instance for each element catched by css selector
+| `initialize()` | undefined | Reitializes the instance after destroy |
+
+---
 
 ## Events
 
 | Event | Arguments | Triggered by |
 | --- | --- | --- |
-| `onNativeScroll(event, element)` | `event` {Event} native scroll event<br />`element` {Element} instance root element | Native scroll event. |
-| `onScroll(progress, element)` | `progress` {Number} scroll progress in range 0 - 1<br />`element` {Element} instance root element | Throttled scroll event. <sup>1<sup> |
-| `onTop(element)` | `element` {Element} instance root element | Scroll to top edge | 
-| `onBottom(element)` | `element` {Element} instance root element | Scroll to bottom edge | 
-| `onLeft(element)` | `element` {Element} instance root element | Scroll to left edge | 
-| `onRight(element)` | `element` {Element} instance root element | Scroll to right edge | 
-> 1. This event is throttled using requestAnimationFrame.
+| `onNativeScroll(e, el)` | `e` {Event} native scroll event<br />`el` {Element} the instance's root element | Native scroll event. |
+| `onScroll(progressObj, el)` | `progressObj` {Object} progress of the scroll in two axis as object `{v, h}`.<sup>1</sup> Each value {Number} is in range 0 - 1<br />`el` {Element} the instance's root element | Throttled scroll event.<sup>2</sup> |
+| `onTop(el)` | `el` {Element} the instance's root element | Scroll to top edge | 
+| `onBottom(el)` | `el` {Element} the instance's root element | Scroll to bottom edge | 
+| `onLeft(el)` | `el` {Element} the instance's root element | Scroll to left edge | 
+| `onRight(el)` | `el` {Element} the instance's root element | Scroll to right edge | 
+
+1. The v is vertical axis value & this h is horizontal axis value.
+2. This event is throttled using requestAnimationFrame.
+
+---
+
+> by dobrapyra
