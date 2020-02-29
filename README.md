@@ -82,6 +82,9 @@ Example CSS
     transition: width 0.2s, background-color 0.2s; }
     .potatoScroll__track--v:hover {
       width: 12px; }
+    [dir=rtl] .potatoScroll__track--v {
+      right: auto;
+      left: 0; }
   .potatoScroll__track--h {
     width: 100%;
     height: 4px;
@@ -136,6 +139,11 @@ Example SCSS
 
       &:hover{
         width: 12px;
+      }
+
+      [dir=rtl] & {
+        right: auto;
+        left: 0;
       }
     }
 
