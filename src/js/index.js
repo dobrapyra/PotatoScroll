@@ -16,13 +16,13 @@ export default class PotatoScroll {
   }
 
   constructor(options) {
-    if (!this.setVars(options)) return;
+    if (!this.preinit(options)) return;
 
     this.bindThis();
     this.initialize();
   }
 
-  setVars(options = {}) {
+  preinit(options = {}) {
     const NOOP = () => {};
 
     const {
@@ -58,8 +58,14 @@ export default class PotatoScroll {
       h: 0,
     };
 
-    this.scrollWait = false;
-    this.resizeWait = false;
+    this.wait = {
+      scroll: false,
+      resize: false,
+    };
+    this.raf = {
+      scroll: null,
+      resize: null,
+    };
 
     this.bar = {
       v: {
@@ -278,29 +284,29 @@ export default class PotatoScroll {
   onScrollThrottle(event) {
     this.event.onNativeScroll(event, this.rootEl);
 
-    if (this.scrollWait) return;
-    this.scrollWait = true;
+    if (this.wait.scroll) return;
+    this.wait.scroll = true;
 
-    this.raf = requestAnimationFrame(this.onScroll);
+    this.raf.scroll = requestAnimationFrame(this.onScroll);
   }
 
   onScroll() {
     this.setBarsPos();
 
-    this.scrollWait = false;
+    this.wait.scroll = false;
   }
 
   onResizeThrottle() {
-    if (this.resizeWait) return;
-    this.resizeWait = true;
+    if (this.wait.resize) return;
+    this.wait.resize = true;
 
-    this.raf = requestAnimationFrame(this.onResize);
+    this.raf.resize = requestAnimationFrame(this.onResize);
   }
 
   onResize() {
     this.refresh();
 
-    this.resizeWait = false;
+    this.wait.resize = false;
   }
 
   onNestedCreate() {
