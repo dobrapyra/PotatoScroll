@@ -77,8 +77,10 @@ export default class PotatoScroll {
         scrollBefore: null,
         size: 0,
         sizeFract: 1,
+        trackSize: 0,
         moveProp: 'clientY',
         scrollProp: 'scrollTop',
+        axis: 'Y',
       },
       h: {
         forceSize: forceCustom ? forceSize : 0,
@@ -89,8 +91,10 @@ export default class PotatoScroll {
         scrollBefore: null,
         size: 0,
         sizeFract: 1,
+        trackSize: 0,
         moveProp: 'clientX',
         scrollProp: 'scrollLeft',
+        axis: 'X',
       },
     };
 
@@ -433,27 +437,15 @@ export default class PotatoScroll {
   }
 
   setBarsPos() {
-    const { scrollEl, bar, progress, event, rootEl } = this;
-
-    const vBarObj = bar.v;
-    const hBarObj = bar.h;
+    const { bar, progress, event, rootEl } = this;
 
     const fract = {
       v: 0,
       h: 0,
     };
 
-    if (vBarObj.el) {
-      fract.v = vBarObj.scrollRange ? (scrollEl.scrollTop / vBarObj.scrollRange) : 0;
-      const vPos = fract.v * (vBarObj.trackSize * (1 - vBarObj.sizeFract));
-      vBarObj.el.style.transform = `translateY(${vPos}px)`;
-    }
-
-    if (hBarObj.el) {
-      fract.h = hBarObj.scrollRange ? (scrollEl.scrollLeft / hBarObj.scrollRange) : 0;
-      const hPos = fract.h * (hBarObj.trackSize * (1 - hBarObj.sizeFract));
-      hBarObj.el.style.transform = `translateX(${hPos}px)`;
-    }
+    if (bar.v.el) fract.v = this.setBarPos(bar.v);
+    if (bar.h.el) fract.h = this.setBarPos(bar.h);
 
     event.onScroll(fract, rootEl);
 
@@ -468,6 +460,16 @@ export default class PotatoScroll {
       if (fract.h >= 1) event.onRight(rootEl);
       progress.h = fract.h;
     }
+  }
+
+  setBarPos(barObj) {
+    const fract = barObj.scrollRange ? (
+      this.scrollEl[barObj.scrollProp] / barObj.scrollRange
+    ) : 0;
+    const pos = fract * (barObj.trackSize * (1 - barObj.sizeFract));
+    barObj.el.style.transform = `translate${barObj.axis}(${pos}px)`;
+
+    return fract;
   }
 
   barMoveToScroll(activeBarObj) {
