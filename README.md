@@ -31,11 +31,11 @@ import PotatoScroll from 'potatoscroll';
 
 #### Initialize
 
-##### Global create
+##### Global create multiple instances
 ```js
 PotatoScroll.create({ selector: '.scroll' });
 ```
-##### Single instances
+##### Individual create of each instance
 ```js
 new PotatoScroll({ el: document.querySelector('.scroll--main') });
 new PotatoScroll({ el: document.querySelector('.scroll--nested') });
@@ -201,7 +201,7 @@ PotatoScroll.create({
   // ... // all single instance options exclude el
 });
 
-// or/and
+// or / and
 
 // single instance create
 new PotatoScroll({
@@ -232,7 +232,7 @@ new PotatoScroll({
 | Method | Return | Description |
 | --- | --- | --- |
 | `new PotatoScroll(options)` | single PotatoScroll instance | The `el` property is required in the options object. |
-| `create(options)` | array of PotatoScroll instances | Creates multiple instances by css selector.<sup>1</sup><br />The `selector` property is required in the options object. |
+| `PotatoScroll.create(options)` | array of PotatoScroll instances | Creates multiple instances by css selector.<sup>1</sup><br />The `selector` property is required in the options object. |
 
 1. A single instance for each element catched by css selector
 
@@ -244,7 +244,7 @@ new PotatoScroll({
 | --- | --- | --- |
 | `refresh()` | undefined | Recalculates content size and set scrollbars size |
 | `destroy()` | undefined | Destroys the instance and restore original html |
-| `initialize()` | undefined | Reitializes the instance after destroy |
+| `initialize()` | undefined | Reinitializes the instance after destroy |
 
 ---
 
