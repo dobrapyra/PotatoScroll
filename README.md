@@ -129,6 +129,10 @@ Example CSS
   transition: background-color 0.2s; }
   .potatoScroll__arrow:hover {
     background-color: rgba(0, 0, 0, 0.8); }
+  .potatoScroll__arrow--disabled {
+    cursor: default; }
+    .potatoScroll__arrow--disabled:hover {
+      background-color: rgba(0, 0, 0, 0.2); }
   .potatoScroll__arrow--t, .potatoScroll__arrow--b {
     left: 0;
     width: 100%;
@@ -240,6 +244,14 @@ Example SCSS
 
     &:hover{
       background-color: rgba(0,0,0,0.8);
+    }
+
+    &--disabled {
+      cursor: default;
+
+      &:hover{
+        background-color: rgba(0,0,0,0.2);
+      }
     }
 
     &--t,
