@@ -346,6 +346,62 @@ new PotatoScroll({ el: document.getElementById('horizontalScroll') });<!--
   </div>
 
   <div class="example">
+    <div class="example__head">With arrow buttons</div>
+    <div class="example__body">
+      <div class="example__demo">
+
+        <div class="scroll scroll--withArrows">
+          <div class="innerBox">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>&nbsp;</p>
+            <h4>nested vertical</h4>
+            <div class="scroll scroll--nested scroll--withArrows">
+              <div class="innerBox">
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+              </div>
+            </div>
+            <p>&nbsp;</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>&nbsp;</p>
+            <h4>nested horizontal</h4>
+            <div class="scroll scroll--nestedH scroll--withArrows">
+              <div class="innerBox innerBox--h">
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+              </div>
+            </div>
+            <p>&nbsp;</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="example__code">
+        <pre>
+<code class="language-js"><!--
+-->
+PotatoScroll.create({
+  selector: '.scroll--withArrows',
+  withArrows: true,
+});<!--
+--></code>
+        </pre>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="example">
     <div class="example__head">Force custom for touch devices and macOS</div>
     <div class="example__body">
       <div class="example__demo">
@@ -471,23 +527,29 @@ PotatoScroll.create({
   transition: background-color 0.2s; }
   .potatoScroll__track--v {
     width: 4px;
-    height: 100%;
     top: 0;
+    bottom: 0;
     right: 0;
     transition: width 0.2s, background-color 0.2s; }
     .potatoScroll__track--v:hover {
       width: 12px; }
+    .potatoScroll--arrows .potatoScroll__track--v {
+      top: 12px;
+      bottom: 12px; }
     [dir=rtl] .potatoScroll__track--v {
       right: auto;
       left: 0; }
   .potatoScroll__track--h {
-    width: 100%;
     height: 4px;
     left: 0;
+    right: 0;
     bottom: 0;
     transition: height 0.2s, background-color 0.2s; }
     .potatoScroll__track--h:hover {
       height: 12px; }
+    .potatoScroll--arrows .potatoScroll__track--h {
+      left: 12px;
+      right: 12px; }
 
 .potatoScroll__bar {
   z-index: 1;
@@ -508,7 +570,36 @@ PotatoScroll.create({
     height: 100%;
     left: 0;
     top: 0;
-    transition: height 0.2s, background-color 0.2s; }<!--
+    transition: height 0.2s, background-color 0.2s; }
+
+.potatoScroll__arrow {
+  z-index: 1;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.2s; }
+  .potatoScroll__arrow:hover {
+    background-color: rgba(0, 0, 0, 0.8); }
+  .potatoScroll__arrow--disabled {
+    cursor: default; }
+    .potatoScroll__arrow--disabled:hover {
+      background-color: rgba(0, 0, 0, 0.2); }
+  .potatoScroll__arrow--t, .potatoScroll__arrow--b {
+    left: 0;
+    width: 100%;
+    height: 12px; }
+  .potatoScroll__arrow--t {
+    top: -12px; }
+  .potatoScroll__arrow--b {
+    bottom: -12px; }
+  .potatoScroll__arrow--l, .potatoScroll__arrow--r {
+    top: 0;
+    height: 100%;
+    width: 12px; }
+  .potatoScroll__arrow--l {
+    left: -12px; }
+  .potatoScroll__arrow--r {
+    right: -12px; }<!--
 --></code>
         </pre>
       </div>
@@ -517,6 +608,9 @@ PotatoScroll.create({
 <code class="language-css"><!--
 -->
 .potatoScroll{
+  $rootEl: &;
+  $arrowSize: 12px;
+
   &__mask {
     z-index: 0;
   }
@@ -527,13 +621,18 @@ PotatoScroll.create({
 
     &--v{
       width: 4px;
-      height: 100%;
       top: 0;
+      bottom: 0;
       right: 0;
       transition: width 0.2s, background-color 0.2s;
 
       &:hover{
         width: 12px;
+      }
+
+      #{$rootEl}--arrows & {
+        top: $arrowSize;
+        bottom: $arrowSize;
       }
 
       [dir=rtl] & {
@@ -543,14 +642,19 @@ PotatoScroll.create({
     }
 
     &--h{
-      width: 100%;
       height: 4px;
       left: 0;
+      right: 0;
       bottom: 0;
       transition: height 0.2s, background-color 0.2s;
 
       &:hover{
         height: 12px;
+      }
+
+      #{$rootEl}--arrows & {
+        left: $arrowSize;
+        right: $arrowSize;
       }
     }
   }
@@ -580,6 +684,56 @@ PotatoScroll.create({
       left: 0;
       top: 0;
       transition: height 0.2s, background-color 0.2s;
+    }
+  }
+
+  &__arrow {
+    z-index: 1;
+    position: absolute;
+    background-color: rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover{
+      background-color: rgba(0,0,0,0.8);
+    }
+
+    &--disabled {
+      cursor: default;
+
+      &:hover{
+        background-color: rgba(0,0,0,0.2);
+      }
+    }
+
+    &--t,
+    &--b {
+      left: 0;
+      width: 100%;
+      height: $arrowSize;
+    }
+
+    &--t {
+      top: -$arrowSize;
+    }
+
+    &--b {
+      bottom: -$arrowSize;
+    }
+
+    &--l,
+    &--r {
+      top: 0;
+      height: 100%;
+      width: $arrowSize;
+    }
+    
+    &--l {
+      left: -$arrowSize;
+    }
+    
+    &--r {
+      right: -$arrowSize;
     }
   }
 }<!--
@@ -618,6 +772,12 @@ PotatoScroll.create({
 
     // horizontal
     new PotatoScroll({ el: document.getElementById('horizontalScroll') });
+
+    // with arrows
+    PotatoScroll.create({
+      selector: '.scroll--withArrows',
+      withArrows: true,
+    });
 
     // force custom
     PotatoScroll.create({
