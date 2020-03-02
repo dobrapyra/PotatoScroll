@@ -30,6 +30,8 @@ export default class PotatoScroll {
       cssClass = 'potatoScroll',
       forceCustom = false,
       forceSize = 20,
+      withArrows = false,
+      arrowMove = 40,
       onNativeScroll = NOOP,
       onScroll = NOOP,
       onTop = NOOP,
@@ -43,6 +45,9 @@ export default class PotatoScroll {
     this.rootEl = el;
     this.cssClass = cssClass;
     this.forceCustom = forceCustom;
+    this.forceSize = forceSize;
+    this.withArrows = withArrows;
+    this.arrowMove = arrowMove;
 
     this.event = {
       onNativeScroll,
@@ -52,6 +57,14 @@ export default class PotatoScroll {
       onLeft,
       onRight,
     };
+
+    this.resetState();
+
+    return true;
+  }
+
+  resetState() {
+    const { forceCustom, forceSize } = this;
 
     this.wait = {
       scroll: false,
@@ -64,8 +77,8 @@ export default class PotatoScroll {
     };
 
     this.progress = {
-      v: 0,
-      h: 0,
+      v: null,
+      h: null,
     };
 
     this.bar = {
@@ -73,6 +86,7 @@ export default class PotatoScroll {
         forceSize: forceCustom ? forceSize : 0,
         nativeSize: 0,
         el: null,
+        trackEl: null,
         moveStart: null,
         moveDiff: 0,
         scrollBefore: null,
@@ -81,12 +95,17 @@ export default class PotatoScroll {
         trackSize: 0,
         moveProp: 'clientY',
         scrollProp: 'scrollTop',
+        lengthProp: 'scrollHeight',
+        measureProp: 'offsetHeight',
+        sizeProp: 'height',
+        forceMulti: 1,
         axis: 'Y',
       },
       h: {
         forceSize: forceCustom ? forceSize : 0,
         nativeSize: 0,
         el: null,
+        trackEl: null,
         moveStart: null,
         moveDiff: 0,
         scrollBefore: null,
@@ -95,15 +114,36 @@ export default class PotatoScroll {
         trackSize: 0,
         moveProp: 'clientX',
         scrollProp: 'scrollLeft',
+        lengthProp: 'scrollWidth',
+        measureProp: 'offsetWidth',
+        sizeProp: 'width',
+        forceMulti: 2,
         axis: 'X',
       },
     };
 
     this.activeBarObj = null;
 
-    this.isRTL = false;
+    this.arrow = {
+      t: {
+        el: null,
+        disabled: false,
+      },
+      b: {
+        el: null,
+        disabled: false,
+      },
+      l: {
+        el: null,
+        disabled: false,
+      },
+      r: {
+        el: null,
+        disabled: false,
+      },
+    };
 
-    return true;
+    this.isRTL = false;
   }
 
   bindThis() {
@@ -113,7 +153,7 @@ export default class PotatoScroll {
     this.onResizeThrottle = this.onResizeThrottle.bind(this);
     this.onResize = this.onResize.bind(this);
 
-    this.onNestedCreate = this.onNestedCreate.bind(this);
+    this.onNestedChange = this.onNestedChange.bind(this);
     this.refreshParents = this.refreshParents.bind(this);
 
     this.onDocMouseMove = this.onDocMouseMove.bind(this);
@@ -122,6 +162,11 @@ export default class PotatoScroll {
 
     this.onVBarMouseDown = this.onVBarMouseDown.bind(this);
     this.onHBarMouseDown = this.onHBarMouseDown.bind(this);
+
+    this.onTClick = this.onTClick.bind(this);
+    this.onBClick = this.onBClick.bind(this);
+    this.onLClick = this.onLClick.bind(this);
+    this.onRClick = this.onRClick.bind(this);
   }
 
   /**
@@ -136,6 +181,7 @@ export default class PotatoScroll {
     this.addCustomBars();
     this.bindEvents();
     this.bindBarsEvents();
+    this.bindArrowsEvents();
     this.refresh();
 
     setTimeout(this.refreshParents);
@@ -245,7 +291,7 @@ export default class PotatoScroll {
   }
 
   addCustomBars() {
-    const { cssClass, bar, rootEl } = this;
+    const { bar, rootEl } = this;
 
     if (!(
       bar.v.nativeSize !== 0 ||
@@ -253,29 +299,13 @@ export default class PotatoScroll {
       this.forceCustom
     )) return;
 
-    const vTrackEl = document.createElement('div');
-    vTrackEl.classList.add(`${cssClass}__track`);
-    vTrackEl.classList.add(`${cssClass}__track--v`);
-    vTrackEl.style.position = 'absolute';
-    vTrackEl.style.zIndex = '1';
-    bar.v.trackEl = vTrackEl;
+    const vTrackEl = this.createTrackEl('v');
+    const vBarEl = this.createBarEl('v');
 
-    const vBarEl = document.createElement('div');
-    vBarEl.classList.add(`${cssClass}__bar`);
-    vBarEl.classList.add(`${cssClass}__bar--v`);
-    bar.v.el = vBarEl;
+    const hTrackEl = this.createTrackEl('h');
+    const hBarEl = this.createBarEl('h');
 
-    const hTrackEl = document.createElement('div');
-    hTrackEl.classList.add(`${cssClass}__track`);
-    hTrackEl.classList.add(`${cssClass}__track--h`);
-    hTrackEl.style.position = 'absolute';
-    hTrackEl.style.zIndex = '1';
-    bar.h.trackEl = hTrackEl;
-
-    const hBarEl = document.createElement('div');
-    hBarEl.classList.add(`${cssClass}__bar`);
-    hBarEl.classList.add(`${cssClass}__bar--h`);
-    bar.h.el = hBarEl;
+    if (this.withArrows) this.addCustomArrows();
 
     vTrackEl.appendChild(vBarEl);
     hTrackEl.appendChild(hBarEl);
@@ -284,12 +314,65 @@ export default class PotatoScroll {
     rootEl.appendChild(hTrackEl);
   }
 
+  createTrackEl(axis) {
+    const { cssClass, bar } = this;
+
+    const trackEl = document.createElement('div');
+    trackEl.classList.add(`${cssClass}__track`);
+    trackEl.classList.add(`${cssClass}__track--${axis}`);
+    trackEl.style.position = 'absolute';
+    trackEl.style.zIndex = '1';
+    bar[axis].trackEl = trackEl;
+
+    return trackEl;
+  }
+
+  createBarEl(axis) {
+    const { cssClass, bar } = this;
+
+    const barEl = document.createElement('div');
+    barEl.classList.add(`${cssClass}__bar`);
+    barEl.classList.add(`${cssClass}__bar--${axis}`);
+    bar[axis].el = barEl;
+
+    return barEl;
+  }
+
+  addCustomArrows() {
+    const { bar, rootEl, cssClass } = this;
+
+    rootEl.classList.add(`${cssClass}--arrows`);
+
+    const arrowT = this.createArrowEl('t');
+    const arrowB = this.createArrowEl('b');
+    const arrowL = this.createArrowEl('l');
+    const arrowR = this.createArrowEl('r');
+
+    bar.v.trackEl.appendChild(arrowT);
+    bar.v.trackEl.appendChild(arrowB);
+    bar.h.trackEl.appendChild(arrowL);
+    bar.h.trackEl.appendChild(arrowR);
+  }
+
+  createArrowEl(direction) {
+    const { cssClass, arrow } = this;
+
+    const arrowEl = document.createElement('div');
+    arrowEl.classList.add(`${cssClass}__arrow`);
+    arrowEl.classList.add(`${cssClass}__arrow--${direction}`);
+    arrowEl.style.position = 'absolute';
+    arrowEl.style.zIndex = '1';
+    arrow[direction].el = arrowEl;
+
+    return arrowEl;
+  }
+
   bindEvents() {
     if (this.scrollEl) this.scrollEl.addEventListener('scroll', this.onScrollThrottle);
 
     window.addEventListener('resize', this.onResizeThrottle);
 
-    this.rootEl.addEventListener('PotatoScroll.nestedCreate', this.onNestedCreate);
+    this.rootEl.addEventListener('PotatoScroll.nestedChange', this.onNestedChange);
   }
 
   unbindEvents() {
@@ -297,7 +380,7 @@ export default class PotatoScroll {
 
     window.removeEventListener('resize', this.onResizeThrottle);
 
-    this.rootEl.removeEventListener('PotatoScroll.nestedCreate', this.onNestedCreate);
+    this.rootEl.removeEventListener('PotatoScroll.nestedChange', this.onNestedChange);
   }
 
   onScrollThrottle(event) {
@@ -328,7 +411,7 @@ export default class PotatoScroll {
     this.wait.resize = false;
   }
 
-  onNestedCreate() {
+  onNestedChange() {
     this.refresh();
   }
 
@@ -420,39 +503,75 @@ export default class PotatoScroll {
     scrollEl.style.pointerEvents = '';
   }
 
+  bindArrowsEvents() {
+    const { arrow } = this;
+
+    if (arrow.t.el) arrow.t.el.addEventListener('click', this.onTClick);
+    if (arrow.b.el) arrow.b.el.addEventListener('click', this.onBClick);
+    if (arrow.l.el) arrow.l.el.addEventListener('click', this.onLClick);
+    if (arrow.r.el) arrow.r.el.addEventListener('click', this.onRClick);
+  }
+
+  unbindArrowsEvents() {
+    const { arrow } = this;
+
+    if (arrow.t.el) arrow.t.el.removeEventListener('click', this.onTClick);
+    if (arrow.b.el) arrow.b.el.removeEventListener('click', this.onBClick);
+    if (arrow.l.el) arrow.l.el.removeEventListener('click', this.onLClick);
+    if (arrow.r.el) arrow.r.el.removeEventListener('click', this.onRClick);
+  }
+
+  onTClick() {
+    this.smoothScrollTo('scrollTop', -this.arrowMove);
+  }
+
+  onBClick() {
+    this.smoothScrollTo('scrollTop', this.arrowMove);
+  }
+
+  onLClick() {
+    this.smoothScrollTo('scrollLeft', -this.arrowMove);
+  }
+
+  onRClick() {
+    this.smoothScrollTo('scrollLeft', this.arrowMove);
+  }
+
+  smoothScrollTo(scrollDir, offset) {
+    const { scrollEl } = this;
+
+    scrollEl.style.scrollBehavior = 'smooth';
+    scrollEl[scrollDir] += offset;
+    scrollEl.style.scrollBehavior = '';
+  }
+
   setBarsSize() {
-    const { scrollEl, maskEl, bar } = this;
+    const { bar } = this;
 
-    const vBarObj = bar.v;
-    const hBarObj = bar.h;
+    this.setBarSize(bar.v);
+    this.setBarSize(bar.h);
+  }
 
-    const vScrollSize = scrollEl.scrollHeight - vBarObj.forceSize;
-    const vTrackSize = maskEl.offsetHeight;
-    const vFract = vTrackSize / vScrollSize;
-    vBarObj.trackSize = vTrackSize;
-    vBarObj.sizeFract = vFract;
-    vBarObj.scrollRange = vScrollSize - vTrackSize;
-    if (vBarObj.el) {
-      vBarObj.trackEl.style.display = (vBarObj.sizeFract === 1) ? 'none' : '';
-      vBarObj.el.style.height = `${vFract * vBarObj.trackEl.offsetHeight}px`;
-      vBarObj.moveRange = vBarObj.trackEl.offsetHeight - vBarObj.el.offsetHeight;
-    }
+  setBarSize(barObj) {
+    const { scrollEl, maskEl } = this;
 
-    const hScrollSize = scrollEl.scrollWidth - 2 * hBarObj.forceSize;
-    const hTrackSize = maskEl.offsetWidth;
-    const hFract = hTrackSize / hScrollSize;
-    hBarObj.trackSize = hTrackSize;
-    hBarObj.sizeFract = hFract;
-    hBarObj.scrollRange = hScrollSize - hTrackSize;
-    if (hBarObj.el) {
-      hBarObj.trackEl.style.display = (hBarObj.sizeFract === 1) ? 'none' : '';
-      hBarObj.el.style.width = `${hFract * hBarObj.trackEl.offsetWidth}px`;
-      hBarObj.moveRange = hBarObj.trackEl.offsetWidth - hBarObj.el.offsetWidth;
+    const scrollSize = scrollEl[barObj.lengthProp] - barObj.forceSize * barObj.forceMulti;
+    const maskSize = maskEl[barObj.measureProp];
+    barObj.scrollRange = scrollSize - maskSize;
+
+    if (barObj.el) {
+      const fract = maskSize / scrollSize;
+      const trackSize = barObj.trackEl[barObj.measureProp];
+      barObj.sizeFract = fract;
+      barObj.trackSize = trackSize;
+      barObj.trackEl.style.display = (barObj.sizeFract === 1) ? 'none' : '';
+      barObj.el.style[barObj.sizeProp] = `${fract * trackSize}px`;
+      barObj.moveRange = trackSize - barObj.el[barObj.measureProp];
     }
   }
 
   setBarsPos() {
-    const { bar, progress, event, rootEl } = this;
+    const { bar, event, rootEl, arrow } = this;
 
     const fract = {
       v: 0,
@@ -464,27 +583,52 @@ export default class PotatoScroll {
 
     event.onScroll(fract, rootEl);
 
-    if (fract.v !== progress.v) {
-      if (fract.v <= 0) event.onTop(rootEl);
-      if (fract.v >= 1) event.onBottom(rootEl);
-      progress.v = fract.v;
-    }
-
-    if (fract.h !== progress.h) {
-      if (fract.h <= 0) event.onLeft(rootEl);
-      if (fract.h >= 1) event.onRight(rootEl);
-      progress.h = fract.h;
-    }
+    this.axisEdges(fract, 'v', arrow.t, arrow.b);
+    this.axisEdges(fract, 'h', arrow.l, arrow.r);
   }
 
   setBarPos(barObj) {
     const fract = barObj.scrollRange ? (
       this.scrollEl[barObj.scrollProp] / barObj.scrollRange
     ) : 0;
-    const pos = fract * (barObj.trackSize * (1 - barObj.sizeFract));
-    barObj.el.style.transform = `translate${barObj.axis}(${pos}px)`;
+
+    if (barObj.el) {
+      const pos = fract * (barObj.trackSize * (1 - barObj.sizeFract));
+      barObj.el.style.transform = `translate${barObj.axis}(${pos}px)`;
+    }
 
     return fract;
+  }
+
+  axisEdges(fract, axis, arrowObj0, arrowObj1) {
+    const { progress, event, rootEl } = this;
+
+    if (fract[axis] !== progress[axis]) {
+      progress[axis] = fract[axis];
+
+      const isEdge0 = fract[axis] <= 0;
+      if (isEdge0) event.onLeft(rootEl);
+      if (arrowObj0.el) this.setArrowIf(arrowObj0, isEdge0);
+
+      const isEdge1 = fract[axis] >= 1;
+      if (isEdge1) event.onRight(rootEl);
+      if (arrowObj1.el) this.setArrowIf(arrowObj1, isEdge1);
+    }
+  }
+
+  setArrowIf(arrowObj, disabled) {
+    const { cssClass } = this;
+
+    if (arrowObj.disabled === disabled) return;
+
+    arrowObj.disabled = disabled;
+
+    const disabledClass = `${cssClass}__arrow--disabled`;
+    if (disabled) {
+      arrowObj.el.classList.add(disabledClass);
+    } else {
+      arrowObj.el.classList.remove(disabledClass);
+    }
   }
 
   barMoveToScroll(activeBarObj) {
@@ -497,7 +641,7 @@ export default class PotatoScroll {
 
   refreshParents() {
     if (!window.CustomEvent) return;
-    this.rootEl.parentElement.dispatchEvent(new CustomEvent('PotatoScroll.nestedCreate', {
+    this.rootEl.parentElement.dispatchEvent(new CustomEvent('PotatoScroll.nestedChange', {
       bubbles: true,
     }));
   }
@@ -514,8 +658,9 @@ export default class PotatoScroll {
     * Destroys the instance and restore original html
     */
   destroy() {
-    const { scrollEl, maskEl, rootEl, bar, cssClass } = this;
+    const { scrollEl, maskEl, rootEl, bar, arrow, cssClass } = this;
 
+    this.unbindArrowsEvents();
     this.unbindDocEvents();
     this.unbindBarsEvents();
     this.unbindEvents();
@@ -524,11 +669,15 @@ export default class PotatoScroll {
       rootEl.removeChild(bar.v.trackEl);
       bar.v.el = null;
       bar.v.trackEl = null;
+      arrow.t.el = null;
+      arrow.b.el = null;
     }
     if (bar.h.trackEl) {
       rootEl.removeChild(bar.h.trackEl);
       bar.h.el = null;
       bar.h.trackEl = null;
+      arrow.l.el = null;
+      arrow.r.el = null;
     }
 
     rootEl.classList.remove(cssClass);
@@ -554,5 +703,9 @@ export default class PotatoScroll {
 
       this.maskEl = null;
     }
+
+    this.resetState();
+
+    setTimeout(this.refreshParents);
   }
 }
