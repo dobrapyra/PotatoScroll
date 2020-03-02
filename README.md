@@ -331,7 +331,7 @@ new PotatoScroll({
 | `cssClass` | String | `"potatoScroll"` | Custom css class, all classes are generate in BEM |
 | `forceCustom` | Boolean | `false` | Forces to use custom scrollbar on touch devices and macOS |
 | `forceSize` | Number | `20` | Offset value used by forceCustom to hide native scrollbar |
-| `withArrows` | Boolead | `false` | Enables arrow buttons on the tracks |
+| `withArrows` | Boolean | `false` | Enables arrow buttons on the tracks |
 | `arrowMove` | Number | `40` | Offset value triggered by single click of arrow button |
 
 ---
