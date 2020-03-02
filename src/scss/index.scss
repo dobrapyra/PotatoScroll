@@ -89,6 +89,14 @@
       background-color: rgba(0,0,0,0.8);
     }
 
+    &--disabled {
+      cursor: default;
+
+      &:hover{
+        background-color: rgba(0,0,0,0.2);
+      }
+    }
+
     &--t,
     &--b {
       left: 0;

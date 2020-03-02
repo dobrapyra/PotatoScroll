@@ -45,6 +45,7 @@ export default class PotatoScroll {
     this.rootEl = el;
     this.cssClass = cssClass;
     this.forceCustom = forceCustom;
+    this.forceSize = forceSize;
     this.withArrows = withArrows;
     this.arrowMove = arrowMove;
 
@@ -57,6 +58,14 @@ export default class PotatoScroll {
       onRight,
     };
 
+    this.resetState();
+
+    return true;
+  }
+
+  resetState() {
+    const { forceCustom, forceSize } = this;
+
     this.wait = {
       scroll: false,
       resize: false,
@@ -68,8 +77,8 @@ export default class PotatoScroll {
     };
 
     this.progress = {
-      v: 0,
-      h: 0,
+      v: null,
+      h: null,
     };
 
     this.bar = {
@@ -116,17 +125,25 @@ export default class PotatoScroll {
     this.activeBarObj = null;
 
     this.arrow = {
-      t: null,
-      b: null,
-      l: null,
-      r: null,
+      t: {
+        el: null,
+        disabled: false,
+      },
+      b: {
+        el: null,
+        disabled: false,
+      },
+      l: {
+        el: null,
+        disabled: false,
+      },
+      r: {
+        el: null,
+        disabled: false,
+      },
     };
 
     this.isRTL = false;
-
-    this.rootEl.potatoscroll = this;
-
-    return true;
   }
 
   bindThis() {
@@ -345,7 +362,7 @@ export default class PotatoScroll {
     arrowEl.classList.add(`${cssClass}__arrow--${direction}`);
     arrowEl.style.position = 'absolute';
     arrowEl.style.zIndex = '1';
-    arrow[direction] = arrowEl;
+    arrow[direction].el = arrowEl;
 
     return arrowEl;
   }
@@ -489,19 +506,19 @@ export default class PotatoScroll {
   bindArrowsEvents() {
     const { arrow } = this;
 
-    if (arrow.t) arrow.t.addEventListener('click', this.onTClick);
-    if (arrow.b) arrow.b.addEventListener('click', this.onBClick);
-    if (arrow.l) arrow.l.addEventListener('click', this.onLClick);
-    if (arrow.r) arrow.r.addEventListener('click', this.onRClick);
+    if (arrow.t.el) arrow.t.el.addEventListener('click', this.onTClick);
+    if (arrow.b.el) arrow.b.el.addEventListener('click', this.onBClick);
+    if (arrow.l.el) arrow.l.el.addEventListener('click', this.onLClick);
+    if (arrow.r.el) arrow.r.el.addEventListener('click', this.onRClick);
   }
 
   unbindArrowsEvents() {
     const { arrow } = this;
 
-    if (arrow.t) arrow.t.removeEventListener('click', this.onTClick);
-    if (arrow.b) arrow.b.removeEventListener('click', this.onBClick);
-    if (arrow.l) arrow.l.removeEventListener('click', this.onLClick);
-    if (arrow.r) arrow.r.removeEventListener('click', this.onRClick);
+    if (arrow.t.el) arrow.t.el.removeEventListener('click', this.onTClick);
+    if (arrow.b.el) arrow.b.el.removeEventListener('click', this.onBClick);
+    if (arrow.l.el) arrow.l.el.removeEventListener('click', this.onLClick);
+    if (arrow.r.el) arrow.r.el.removeEventListener('click', this.onRClick);
   }
 
   onTClick() {
@@ -554,7 +571,7 @@ export default class PotatoScroll {
   }
 
   setBarsPos() {
-    const { bar, progress, event, rootEl } = this;
+    const { bar, event, rootEl, arrow } = this;
 
     const fract = {
       v: 0,
@@ -566,17 +583,8 @@ export default class PotatoScroll {
 
     event.onScroll(fract, rootEl);
 
-    if (fract.v !== progress.v) {
-      if (fract.v <= 0) event.onTop(rootEl);
-      if (fract.v >= 1) event.onBottom(rootEl);
-      progress.v = fract.v;
-    }
-
-    if (fract.h !== progress.h) {
-      if (fract.h <= 0) event.onLeft(rootEl);
-      if (fract.h >= 1) event.onRight(rootEl);
-      progress.h = fract.h;
-    }
+    this.axisEdges(fract, 'v', arrow.t, arrow.b);
+    this.axisEdges(fract, 'h', arrow.l, arrow.r);
   }
 
   setBarPos(barObj) {
@@ -590,6 +598,37 @@ export default class PotatoScroll {
     }
 
     return fract;
+  }
+
+  axisEdges(fract, axis, arrowObj0, arrowObj1) {
+    const { progress, event, rootEl } = this;
+
+    if (fract[axis] !== progress[axis]) {
+      progress[axis] = fract[axis];
+
+      const isEdge0 = fract[axis] <= 0;
+      if (isEdge0) event.onLeft(rootEl);
+      if (arrowObj0.el) this.setArrowIf(arrowObj0, isEdge0);
+
+      const isEdge1 = fract[axis] >= 1;
+      if (isEdge1) event.onRight(rootEl);
+      if (arrowObj1.el) this.setArrowIf(arrowObj1, isEdge1);
+    }
+  }
+
+  setArrowIf(arrowObj, disabled) {
+    const { cssClass } = this;
+
+    if (arrowObj.disabled === disabled) return;
+
+    arrowObj.disabled = disabled;
+
+    const disabledClass = `${cssClass}__arrow--disabled`;
+    if (disabled) {
+      arrowObj.el.classList.add(disabledClass);
+    } else {
+      arrowObj.el.classList.remove(disabledClass);
+    }
   }
 
   barMoveToScroll(activeBarObj) {
@@ -630,15 +669,15 @@ export default class PotatoScroll {
       rootEl.removeChild(bar.v.trackEl);
       bar.v.el = null;
       bar.v.trackEl = null;
-      arrow.t = null;
-      arrow.b = null;
+      arrow.t.el = null;
+      arrow.b.el = null;
     }
     if (bar.h.trackEl) {
       rootEl.removeChild(bar.h.trackEl);
       bar.h.el = null;
       bar.h.trackEl = null;
-      arrow.l = null;
-      arrow.r = null;
+      arrow.l.el = null;
+      arrow.r.el = null;
     }
 
     rootEl.classList.remove(cssClass);
@@ -664,6 +703,8 @@ export default class PotatoScroll {
 
       this.maskEl = null;
     }
+
+    this.resetState();
 
     setTimeout(this.refreshParents);
   }
