@@ -513,6 +513,71 @@ PotatoScroll.create({
   </div>
 
   <div class="example">
+    <div class="example__head">Own DOM tree</div>
+    <div class="example__body">
+      <div class="example__demo">
+        <div id="ownDomVertical" class="scroll potatoScroll">
+          <div class="potatoScroll__mask">
+            <div class="potatoScroll__scroll">
+              <div class="innerBox">
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                <div id="ownDomNestedVertical" class="scroll scroll--nested potatoScroll">
+                  <div class="potatoScroll__mask">
+                    <div class="potatoScroll__scroll">
+                      <div class="innerBox">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                <div id="ownDomNestedHorizontal" class="scroll scroll--nestedH potatoScroll">
+                  <div class="potatoScroll__mask">
+                    <div class="potatoScroll__scroll">
+                      <div class="innerBox innerBox--h">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus voluptatem, dicta fuga saepe vitae vel autem repudiandae, suscipit quae id aliquid voluptate, reprehenderit explicabo dolorum adipisci eaque perferendis sapiente. Ipsum.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="example__code">
+        <pre>
+<code class="language-js"><!--
+-->
+var rootOwnDom = document.getElementById('ownDomVertical');
+new PotatoScroll({
+  el: rootOwnDom,
+  maskEl: rootOwnDom.children[0],
+  scrollEl: rootOwnDom.children[0].children[0],
+});
+var rootOwnDomNV = document.getElementById('ownDomNestedVertical');
+new PotatoScroll({
+  el: rootOwnDomNV,
+  maskEl: rootOwnDomNV.children[0],
+  scrollEl: rootOwnDomNV.children[0].children[0],
+});
+var rootOwnDomNH = document.getElementById('ownDomNestedHorizontal');
+new PotatoScroll({
+  el: rootOwnDomNH,
+  maskEl: rootOwnDomNH.children[0],
+  scrollEl: rootOwnDomNH.children[0].children[0],
+});<!--
+--></code>
+        </pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="example">
     <div class="example__head">Example custom CSS &amp; SCSS</div>
     <div class="example__body">
       <div class="example__code">
@@ -788,6 +853,26 @@ PotatoScroll.create({
     // rtl
     PotatoScroll.create({
       selector: '.scroll--rtl',
+    });
+
+    // own dom tree
+    var rootOwnDom = document.getElementById('ownDomVertical');
+    new PotatoScroll({
+      el: rootOwnDom,
+      maskEl: rootOwnDom.children[0],
+      scrollEl: rootOwnDom.children[0].children[0],
+    });
+    var rootOwnDomNV = document.getElementById('ownDomNestedVertical');
+    new PotatoScroll({
+      el: rootOwnDomNV,
+      maskEl: rootOwnDomNV.children[0],
+      scrollEl: rootOwnDomNV.children[0].children[0],
+    });
+    var rootOwnDomNH = document.getElementById('ownDomNestedHorizontal');
+    new PotatoScroll({
+      el: rootOwnDomNH,
+      maskEl: rootOwnDomNH.children[0],
+      scrollEl: rootOwnDomNH.children[0].children[0],
     });
   </script>
   <script src="./demo/prism.js"></script>

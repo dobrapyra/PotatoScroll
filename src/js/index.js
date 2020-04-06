@@ -27,6 +27,8 @@ export default class PotatoScroll {
 
     const {
       el,
+      maskEl = null,
+      scrollEl = null,
       cssClass = 'potatoScroll',
       forceCustom = false,
       forceSize = 20,
@@ -43,6 +45,8 @@ export default class PotatoScroll {
     if (!el) return false;
 
     this.rootEl = el;
+    this.ownMaskEl = maskEl;
+    this.ownScrollEl = scrollEl;
     this.cssClass = cssClass;
     this.forceCustom = forceCustom;
     this.forceSize = forceSize;
@@ -57,6 +61,8 @@ export default class PotatoScroll {
       onLeft,
       onRight,
     };
+
+    this.ownTree = (this.ownMaskEl !== null && this.ownScrollEl !== null);
 
     this.resetState();
 
@@ -231,15 +237,15 @@ export default class PotatoScroll {
     const { rootEl, cssClass } = this;
 
     // rootEl
-    rootEl.classList.add(cssClass);
+    if (!this.ownTree) rootEl.classList.add(cssClass);
     const rootStyle = rootEl.style;
     rootStyle.overflow = 'visible';
     rootStyle.position = 'relative';
     rootStyle.display = 'flex';
 
     // maskEl
-    const maskEl = document.createElement('div');
-    maskEl.classList.add(`${cssClass}__mask`);
+    const maskEl = (!this.ownTree) ? document.createElement('div') : this.ownMaskEl;
+    if (!this.ownTree) maskEl.classList.add(`${cssClass}__mask`);
     const maskStyle = maskEl.style;
     maskStyle.flexGrow = 1;
     maskStyle.overflow = 'hidden';
@@ -248,18 +254,20 @@ export default class PotatoScroll {
     maskStyle.zIndex = '0';
 
     // scrollEl
-    const scrollEl = document.createElement('div');
-    scrollEl.classList.add(`${cssClass}__scroll`);
+    const scrollEl = (!this.ownTree) ? document.createElement('div') : this.ownScrollEl;
+    if (!this.ownTree) scrollEl.classList.add(`${cssClass}__scroll`);
     const scrollStyle = scrollEl.style;
     scrollStyle.flexGrow = 1;
     scrollStyle.overflow = 'scroll';
 
-    while (rootEl.childNodes.length) {
-      scrollEl.appendChild(rootEl.childNodes[0]);
-    }
+    if (!this.ownTree) {
+      while (rootEl.childNodes.length) {
+        scrollEl.appendChild(rootEl.childNodes[0]);
+      }
 
-    maskEl.appendChild(scrollEl);
-    rootEl.appendChild(maskEl);
+      maskEl.appendChild(scrollEl);
+      rootEl.appendChild(maskEl);
+    }
 
     this.maskEl = maskEl;
     this.scrollEl = scrollEl;
@@ -682,29 +690,30 @@ export default class PotatoScroll {
       arrow.r.el = null;
     }
 
-    rootEl.classList.remove(cssClass);
+    if (!this.ownTree) rootEl.classList.remove(cssClass);
     const rootStyle = rootEl.style;
     rootStyle.overflow = '';
     rootStyle.position = '';
     rootStyle.display = '';
 
-    if (scrollEl) {
-      while (scrollEl.childNodes.length) {
-        rootEl.appendChild(scrollEl.childNodes[0]);
+    if (!this.ownTree) {
+      if (scrollEl) {
+        while (scrollEl.childNodes.length) {
+          rootEl.appendChild(scrollEl.childNodes[0]);
+        }
+
+        if (maskEl) {
+          maskEl.removeChild(scrollEl);
+        }
       }
 
       if (maskEl) {
-        maskEl.removeChild(scrollEl);
+        rootEl.removeChild(maskEl);
       }
-
-      this.scrollEl = null;
     }
 
-    if (maskEl) {
-      rootEl.removeChild(maskEl);
-
-      this.maskEl = null;
-    }
+    if (scrollEl) this.scrollEl = null;
+    if (maskEl) this.maskEl = null;
 
     this.resetState();
 
