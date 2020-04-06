@@ -442,12 +442,14 @@ export default class PotatoScroll {
   }
 
   onVBarMouseDown(e) {
+    e.preventDefault();
     this.activeBarObj = this.bar.v;
 
     this.moveBegin(e);
   }
 
   onHBarMouseDown(e) {
+    e.preventDefault();
     this.activeBarObj = this.bar.h;
 
     this.moveBegin(e);
