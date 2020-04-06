@@ -3,6 +3,9 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 
+const libName = 'PotatoScroll';
+const fileName = 'potato-scroll';
+
 module.exports = (env, args) => {
   const devMode = args.mode !== 'production';
 
@@ -18,9 +21,9 @@ module.exports = (env, args) => {
     entry: './src/js/build.js',
     output: {
       path: path.resolve(__dirname, './dist'),
-      filename: devMode ? 'potato-scroll.js' : 'potato-scroll.min.js',
+      filename: devMode ? `${fileName}.js` : `${fileName}.min.js`,
       // publicPath: '.'
-      library: 'PotatoScroll',
+      library: libName,
       libraryTarget: 'window',
       libraryExport: 'default',
       umdNamedDefine: true
@@ -50,7 +53,7 @@ module.exports = (env, args) => {
     },
     plugins: [
       new MiniCssExtractPlugin({
-        filename: devMode ? 'potato-scroll.css' : 'potato-scroll.min.css',
+        filename: devMode ? `${fileName}.css` : `${fileName}.min.css`,
       })
     ],
     optimization: {
@@ -71,7 +74,7 @@ module.exports = (env, args) => {
             // output: null,
             output: {
               preamble: `/**
- * PotatoScroll
+ * ${libName}
  * author: dobrapyra (Michał Zieliński)
  * version ${JSON.stringify(require('./package.json').version)}
  */`
