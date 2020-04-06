@@ -310,6 +310,8 @@ PotatoScroll.create({
 // single instance create
 new PotatoScroll({
   el: undefined, // required, Element
+  maskEl: null, // own maskEl, Element
+  scrollEl: null, // own scrollEl, Element
   cssClass: 'potatoScroll', // custom css class name for scrollbar styling
   forceCustom: false, // forces to use custom scrollbar on touch devices and macOS
   forceSize: 20, // offset for forceCustom to hide native scrollbar
@@ -328,11 +330,26 @@ new PotatoScroll({
 | --- | --- | --- | --- |
 | `selector` | String | `undefined` | Only for `create()` method |
 | `el` | Element | `undefined` | Only for single instance constructor (`new PotatoScroll()`) |
+| `maskEl` | Element | `null` | Only for single instance constructor<sup>1</sup> |
+| `scrollEl` | Element | `null` | Only for single instance constructor<sup>1</sup> |
 | `cssClass` | String | `"potatoScroll"` | Custom css class, all classes are generate in BEM |
 | `forceCustom` | Boolean | `false` | Forces to use custom scrollbar on touch devices and macOS |
 | `forceSize` | Number | `20` | Offset value used by forceCustom to hide native scrollbar |
 | `withArrows` | Boolean | `false` | Enables arrow buttons on the tracks |
 | `arrowMove` | Number | `40` | Offset value triggered by single click of arrow button |
+
+1. Pass both `maskEl` & `scrollEl` to use own DOM tree mode
+Correct DOM tree example:
+```html
+<div class="potatoScroll"> <!-- el -->
+  <div class="potatoScroll__mask"> <!-- maskEl -->
+    <div class="potatoScroll__scroll"> <!-- scrollEl -->
+       <!-- scroll content -->
+    </div>
+  </div>
+</div>
+```
+
 
 ---
 
