@@ -3,13 +3,26 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 
-const libName = 'PotatoScroll';
-const fileName = 'potato-scroll';
-
 module.exports = (env, args) => {
   const devMode = args.mode !== 'production';
 
-  return {
+  const library = 'PotatoScroll';
+  const version = `${JSON.stringify(require('./package.json').version)}`;
+
+  const chunksCfg = [
+    {
+      entry: './src/js/build.js',
+      filename: 'potato-scroll',
+      libraryTarget: 'window',
+    },
+    {
+      entry: './src/js/index.js',
+      filename: 'potato-scroll.umd',
+      libraryTarget: 'umd',
+    },
+  ];
+
+  return chunksCfg.map(chunkCfg => ({
     mode: devMode ? 'development' : 'production',
     devtool: devMode ? 'inline-source-map' : 'none',
     devServer: {
@@ -18,13 +31,13 @@ module.exports = (env, args) => {
       port: 4000,
       open: true
     },
-    entry: './src/js/build.js',
+    entry: chunkCfg.entry,
     output: {
-      path: path.resolve(__dirname, './dist'),
-      filename: devMode ? `${fileName}.js` : `${fileName}.min.js`,
       // publicPath: '.'
-      library: libName,
-      libraryTarget: 'window',
+      path: path.resolve(__dirname, './dist'),
+      filename: `${chunkCfg.filename}${(devMode ? '.js' : '.min.js')}`,
+      library: library,
+      libraryTarget: chunkCfg.libraryTarget,
       libraryExport: 'default',
       umdNamedDefine: true
     },
@@ -36,7 +49,7 @@ module.exports = (env, args) => {
           use: {
             loader: 'babel-loader',
             options: {
-              presets: ['env']
+              presets: ['@babel/preset-env']
             }
           }
         },
@@ -53,7 +66,7 @@ module.exports = (env, args) => {
     },
     plugins: [
       new MiniCssExtractPlugin({
-        filename: devMode ? `${fileName}.css` : `${fileName}.min.css`,
+        filename: devMode ? `${chunkCfg.filename}.css` : `${chunkCfg.filename}.min.css`,
       })
     ],
     optimization: {
@@ -74,9 +87,9 @@ module.exports = (env, args) => {
             // output: null,
             output: {
               preamble: `/**
- * ${libName}
+ * ${library}
  * author: dobrapyra (Michał Zieliński)
- * version ${JSON.stringify(require('./package.json').version)}
+ * version ${version}
  */`
             },
             toplevel: false,
@@ -89,5 +102,5 @@ module.exports = (env, args) => {
         }),
       ],
     },
-  };
+  }));
 };
