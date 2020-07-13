@@ -225,12 +225,18 @@ export default class PotatoScroll {
       const testContentEl = document.createElement('div');
       testScrollEl.appendChild(testContentEl);
 
-      this.isRTL = (vNativeSize > 0) && (testContentEl.offsetLeft > testScrollEl.offsetLeft);
+      const testContentLeft = testContentEl.getBoundingClientRect().left;
+      const testScrollLeft = testScrollEl.getBoundingClientRect().left;
+      this.isRTL = (vNativeSize > 0) && (testContentLeft > testScrollLeft);
 
       testScrollEl.removeChild(testContentEl);
     }
 
     rootParent.removeChild(testScrollEl);
+
+    this.isIE = /Trident\/.*rv:11|MSIE /.test(window.navigator.userAgent);
+
+    this.isIEandRTL = (this.isIE && this.isRTL);
   }
 
   prepareDOM() {
@@ -475,6 +481,12 @@ export default class PotatoScroll {
     this.moveEnd(e);
   }
 
+  getMoveValue(e, barObj) {
+    return (barObj.axis === 'X' && this.isIEandRTL) ? (
+      barObj.scrollRange - e[barObj.moveProp]
+    ) : e[barObj.moveProp]
+  }
+
   moveBegin(e) {
     const { activeBarObj, scrollEl } = this;
     if (activeBarObj === null) return;
@@ -484,7 +496,7 @@ export default class PotatoScroll {
 
     this.bindDocEvents();
 
-    activeBarObj.moveStart = e[activeBarObj.moveProp];
+    activeBarObj.moveStart = this.getMoveValue(e, activeBarObj);
     activeBarObj.scrollBefore = scrollEl[activeBarObj.scrollProp];
   }
 
@@ -492,7 +504,7 @@ export default class PotatoScroll {
     const { activeBarObj } = this;
     if (activeBarObj === null) return;
 
-    activeBarObj.moveDiff = e[activeBarObj.moveProp] - activeBarObj.moveStart;
+    activeBarObj.moveDiff = this.getMoveValue(e, activeBarObj) - activeBarObj.moveStart;
 
     this.barMoveToScroll(activeBarObj);
   }
@@ -598,8 +610,12 @@ export default class PotatoScroll {
   }
 
   setBarPos(barObj) {
+    const scrollValue = (barObj.axis === 'X' && this.isIEandRTL && barObj.scrollRange) ? (
+      barObj.scrollRange - this.scrollEl[barObj.scrollProp]
+    ) : this.scrollEl[barObj.scrollProp];
+
     const fract = barObj.scrollRange ? (
-      this.scrollEl[barObj.scrollProp] / barObj.scrollRange
+      scrollValue / barObj.scrollRange
     ) : 0;
 
     if (barObj.el) {
