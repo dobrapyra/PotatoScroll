@@ -633,8 +633,6 @@ export default class PotatoScroll {
   }
 
   setBarPos(barObj) {
-    console.log(this.scrollEl[barObj.scrollProp]);
-
     let scrollValue = this.getScrollValue(barObj);
 
     const fract = barObj.scrollRange ? (
