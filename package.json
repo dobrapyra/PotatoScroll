@@ -1,10 +1,12 @@
 {
   "name": "potatoscroll",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Custom scrollbar but still native scroll engine",
   "keywords": [
     "scroll",
-    "scrollbar"
+    "scrollbar",
+    "native scroll",
+    "custom scrollbar"
   ],
   "main": "dist/potato-scroll.umd.js",
   "scripts": {
