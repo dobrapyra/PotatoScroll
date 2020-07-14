@@ -235,6 +235,7 @@ export default class PotatoScroll {
     rootParent.removeChild(testScrollEl);
 
     this.isIE = /Trident\/.*rv:11|MSIE /.test(window.navigator.userAgent);
+    this.isFF = /Firefox\//.test(window.navigator.userAgent);
 
     this.isIEandRTL = (this.isIE && this.isRTL);
   }
@@ -482,9 +483,15 @@ export default class PotatoScroll {
   }
 
   getMoveValue(e, barObj) {
-    return (barObj.axis === 'X' && this.isIEandRTL) ? (
-      barObj.scrollRange - e[barObj.moveProp]
-    ) : e[barObj.moveProp]
+    if (barObj.axis === 'Y' || !this.isRTL) {
+      return e[barObj.moveProp];
+    }
+
+    if (this.isIE) {
+      return barObj.scrollRange - e[barObj.moveProp];
+    }
+
+    return e[barObj.moveProp];
   }
 
   moveBegin(e) {
@@ -609,10 +616,26 @@ export default class PotatoScroll {
     this.axisEdges(fract, 'h', arrow.l, arrow.r);
   }
 
+  getScrollValue(barObj) {
+    if (barObj.axis === 'Y' || !barObj.scrollRange || !this.isRTL) {
+      return this.scrollEl[barObj.scrollProp];
+    }
+      
+    if (this.isFF) {
+      return this.scrollEl[barObj.scrollProp] + barObj.scrollRange;
+    }
+
+    if (this.isIE) {
+      return barObj.scrollRange - this.scrollEl[barObj.scrollProp];
+    }
+
+    return this.scrollEl[barObj.scrollProp];
+  }
+
   setBarPos(barObj) {
-    const scrollValue = (barObj.axis === 'X' && this.isIEandRTL && barObj.scrollRange) ? (
-      barObj.scrollRange - this.scrollEl[barObj.scrollProp]
-    ) : this.scrollEl[barObj.scrollProp];
+    console.log(this.scrollEl[barObj.scrollProp]);
+
+    let scrollValue = this.getScrollValue(barObj);
 
     const fract = barObj.scrollRange ? (
       scrollValue / barObj.scrollRange
