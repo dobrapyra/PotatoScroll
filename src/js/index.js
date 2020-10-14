@@ -235,7 +235,6 @@ export default class PotatoScroll {
     rootParent.removeChild(testScrollEl);
 
     this.isIE = /Trident\/.*rv:11|MSIE /.test(window.navigator.userAgent);
-    this.isFF = /Firefox\//.test(window.navigator.userAgent);
 
     this.isIEandRTL = (this.isIE && this.isRTL);
   }
@@ -620,16 +619,12 @@ export default class PotatoScroll {
     if (barObj.axis === 'Y' || !barObj.scrollRange || !this.isRTL) {
       return this.scrollEl[barObj.scrollProp];
     }
-      
-    if (this.isFF) {
-      return this.scrollEl[barObj.scrollProp] + barObj.scrollRange;
-    }
 
     if (this.isIE) {
       return barObj.scrollRange - this.scrollEl[barObj.scrollProp];
     }
 
-    return this.scrollEl[barObj.scrollProp];
+    return this.scrollEl[barObj.scrollProp] + barObj.scrollRange;
   }
 
   setBarPos(barObj) {
