@@ -1,6 +1,6 @@
 {
   "name": "potatoscroll",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Custom scrollbar but still native scroll engine",
   "keywords": [
     "scroll",
